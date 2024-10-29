@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatSpace</title>
+    <style>
+        /* 2000s-inspired CSS styling */
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #c0c0c0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        /* Main wrapper */
+        .container {
+            width: 80%;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #e6e6e6;
+            border: 2px solid #000;
+            border-radius: 10px;
+        }
+
+        /* Header */
+        h1 {
+            font-size: 2.5em;
+            color: #ff00ff;
+            text-shadow: 2px 2px #000;
+            margin: 0.5em 0;
+        }
+
+        /* Animated banner */
+        .banner {
+            font-size: 1.5em;
+            color: #333;
+            background-color: #ffccff;
+            padding: 10px;
+            border: 1px dashed #333;
+            margin: 20px 0;
+            animation: bannerAnimation 10s infinite;
+        }
+
+        @keyframes bannerAnimation {
+            0%   { content: "FREE CHAT"; }
+            33%  { content: "WELCOME TO CHAT SPACE"; }
+            66%  { content: "CONNECT WITH FRIENDS"; }
+            100% { content: "FREE CHAT"; }
+        }
+
+        /* Navigation menu */
+        .nav {
+            margin: 20px 0;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #000;
+            font-size: 1.2em;
+            background-color: #b0e0e6;
+            padding: 10px 20px;
+            margin: 5px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            box-shadow: 2px 2px 0 #888;
+        }
+
+        .nav a:hover {
+            background-color: #ff69b4;
+            color: #fff;
+        }
+
+        /* Description section */
+        .description {
+            font-size: 1.2em;
+            line-height: 1.6em;
+            background-color: #f0f8ff;
+            padding: 20px;
+            border: 1px dashed #333;
+            margin: 20px 0;
+        }
+
+        /* Trust section */
+        .trust-section {
+            font-size: 1.2em;
+            line-height: 1.6em;
+            background-color: #e0ffe0;
+            padding: 20px;
+            border: 1px dashed #333;
+            margin: 20px 0;
+        }
+
+        /* Visitor counter */
+        .visitor-counter {
+            font-size: 1.2em;
+            background-color: #ffffe0;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #333;
+        }
+
+        /* Footer */
+        footer {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #000;
+        }
+
+        footer a {
+            color: #0000ff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #ff4500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Title -->
+        <h1>Welcome to ChatSpace</h1>
+
+        <!-- Animated banner -->
+        <div class="banner">FREE CHAT</div>
+
+        <!-- Navigation Links -->
+        <div class="nav">
+            <a href="chat.html">Chat</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="faq.html">F.A.Q</a>
+        </div>
+
+        <!-- Description -->
+        <div class="description">
+            <p><strong>ChatSpace</strong> is a retro-inspired chatroom platform where socializing meets nostalgia! Dive into a classic online chat experience, designed for those who appreciate the simplicity of the early 2000s web. Our platform is easy to use, completely free, and open to anyone looking to make genuine connections.</p>
+            <p>At ChatSpace, we believe in keeping conversations alive, spontaneous, and fun! Whether you’re catching up with old friends or seeking new ones, our chat space brings the charm of traditional chatrooms with a modern, safe environment.</p>
+            <p>With user-friendly features and a simple interface, you can engage in lively group chats or private conversations at your leisure. So go ahead, make friends, swap stories, or just hang out – the chat space is yours to enjoy!</p>
+        </div>
+
+        <!-- Trust Section -->
+        <div class="trust-section">
+            <h2>Why Trust Us?</h2>
+            <p>At ChatSpace, user trust is our top priority. Here’s why you can feel secure using our platform:</p>
+            <ul>
+                <li><strong>Anonymous Usage:</strong> No sign-up is required, ensuring your privacy.</li>
+                <li><strong>Secure Environment:</strong> We maintain strict moderation policies to create a safe chatting space.</li>
+                <li><strong>No Ads & No Donations:</strong> Our platform is entirely free; we do not sell your data or accept donations.</li>
+                <li><strong>Community Guidelines:</strong> We promote respectful and positive interactions among users.</li>
+                <li><strong>Transparent Policies:</strong> Our rules and privacy policies are clearly stated and accessible.</li>
+            </ul>
+        </div>
+
+        <!-- Visitor Counter -->
+        <div class="visitor-counter" id="visitor-counter">
+            <p>Total Unique Visitors: <span id="visitor-count">Loading...</span></p>
+        </div>
+        
+        <!-- Footer -->
+        <footer>
+            <p>ChatSpace © 2002 - 2024 | Designed with love for the 2000s vibe</p>
+            <p><a href="contact.html">Contact Us</a> | <a href="privacypolicy.html">Privacy Policy</a></p>
+        </footer>
+    </div>
+
+    <!-- JavaScript for animated text banner and visitor counter -->
+    <script>
+        // Visitor counter script
+        let visitorCount = localStorage.getItem("visitorCount") || 0;
+
+        // Check if visitor count exists for the IP (for demonstration purposes, using localStorage)
+        if (!localStorage.getItem("hasVisited")) {
+            visitorCount++;
+            localStorage.setItem("visitorCount", visitorCount);
+            localStorage.setItem("hasVisited", true);
+        }
+
+        document.getElementById("visitor-count").innerText = visitorCount;
+
+        // Animated banner messages (simple looped text replacement for animation)
+        const banner = document.querySelector(".banner");
+        const messages = ["FREE CHAT", "WELCOME TO CHAT SPACE", "CONNECT WITH FRIENDS"];
+        let messageIndex = 0;
+
+        setInterval(() => {
+            banner.textContent = messages[messageIndex];
+            messageIndex = (messageIndex + 1) % messages.length;
+        }, 3000); // Changes every 3 seconds
+    </script>
+</body>
+</html>
