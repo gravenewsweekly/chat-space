@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat - ChatSpace</title>
     <style>
-        /* Retro styling matching homepage */
         body {
             font-family: 'Comic Sans MS', cursive, sans-serif;
             background-color: #c0c0c0;
@@ -14,7 +13,6 @@
             padding: 0;
             text-align: center;
         }
-
         .container {
             width: 80%;
             max-width: 800px;
@@ -24,13 +22,11 @@
             border: 2px solid #000;
             border-radius: 10px;
         }
-
         h1 {
             font-size: 2.5em;
             color: #ff00ff;
             text-shadow: 2px 2px #000;
         }
-
         .chat-box {
             width: 100%;
             max-width: 700px;
@@ -43,19 +39,16 @@
             border-radius: 8px;
             text-align: left;
         }
-
         .chat-input {
             display: flex;
             justify-content: center;
             margin-top: 10px;
         }
-
         .chat-input input {
             width: 80%;
             padding: 10px;
             font-size: 1em;
         }
-
         .chat-input button {
             padding: 10px;
             font-size: 1em;
@@ -63,26 +56,6 @@
             background-color: #ff69b4;
             border: 1px solid #333;
             color: #fff;
-        }
-
-        .banned-message {
-            color: red;
-            font-size: 1.2em;
-            margin: 10px;
-        }
-
-        .guidelines {
-            margin-top: 20px;
-            font-size: 1em;
-            text-align: left;
-            background-color: #ffffe0;
-            padding: 10px;
-            border: 1px solid #333;
-            border-radius: 8px;
-        }
-
-        .guidelines h3 {
-            color: #ff69b4;
         }
     </style>
 </head>
@@ -92,124 +65,68 @@
         <div class="chat-box" id="chatBox">
             <!-- Messages will appear here -->
         </div>
-        <div class="banned-message" id="bannedMessage" style="display: none;">
-            You have been temporarily banned from the chat due to rule violations. Please try again in 5 minutes.
-        </div>
-        <div class="chat-input" id="chatInput">
+        <div class="chat-input">
             <input type="text" id="messageInput" placeholder="Type your message here...">
             <button onclick="sendMessage()">Send</button>
         </div>
-
-        <div class="guidelines">
-            <h3>Chat Guidelines:</h3>
-            <ul>
-                <li>Be respectful and avoid using offensive language.</li>
-                <li>Adult or explicit content is strictly prohibited and will result in an immediate ban.</li>
-                <li>Links to adult content are not allowed. Links to safe sites like YouTube and Chess.com are acceptable.</li>
-                <li>Repeated violations will result in a permanent ban from the chat.</li>
-            </ul>
-        </div>
     </div>
 
-    <script>
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA48R_OtFpAAhwK71MtgNlJp3UllxGa8H4",
+            authDomain: "onlinechat-8fc00.firebaseapp.com",
+            projectId: "onlinechat-8fc00",
+            storageBucket: "onlinechat-8fc00.appspot.com",
+            messagingSenderId: "351811650196",
+            appId: "1:351811650196:web:8a5c4744530f04adaf6a81",
+            measurementId: "G-FG7KFJ1B27"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Select chat box and input field
         const chatBox = document.getElementById("chatBox");
         const messageInput = document.getElementById("messageInput");
-        const chatInputDiv = document.getElementById("chatInput");
-        const bannedMessage = document.getElementById("bannedMessage");
 
-        const bannedWords = ["vulgar1", "offensive1", "hate", "sex", "porn", "nude", "abuse", "violence", "hate", "blood", 
-                             "murder", "kill", "suicide", "assault", "foul", "racist", "harass", "bully", "intoxicate", 
-                             "inappropriate", "spam", "curse", "xxx", "adult", "obscene", "offensive2", "derogatory", 
-                             "exploit", "stalker", "abusive", "explicit", "link2"];
-
-        const allowedDomains = ["youtube.com", "chess.com"];
-        const banDuration = 5 * 60 * 1000; // 5 minutes in milliseconds
-        const bannedKey = "isBanned";
-        const permanentBanKey = "isPermanentlyBanned";
-        let violationCount = 0;
-
-        // Load chat history on page load
-        function loadChatHistory() {
-            const chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
-            chatBox.innerHTML = chatHistory.join("");
-        }
-
-        function saveMessageToHistory(messageHTML) {
-            const chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
-            chatHistory.push(messageHTML);
-            localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
-        }
-
-        function checkBan() {
-            if (localStorage.getItem(permanentBanKey)) {
-                permanentlyBanUser();
-                return;
-            }
-
-            if (localStorage.getItem(bannedKey)) {
-                const banEndTime = new Date(parseInt(localStorage.getItem(bannedKey)));
-                const now = new Date();
-
-                if (now < banEndTime) {
-                    chatInputDiv.style.display = "none";
-                    bannedMessage.style.display = "block";
-                    return;
-                } else {
-                    localStorage.removeItem(bannedKey);
-                    violationCount = 0;
-                }
-            }
-            chatInputDiv.style.display = "flex";
-            bannedMessage.style.display = "none";
-        }
-
-        function sendMessage() {
+        // Function to send a message
+        async function sendMessage() {
             const message = messageInput.value.trim();
             if (message === "") return;
 
-            const isBannedWordUsed = bannedWords.some(word => message.toLowerCase().includes(word));
-            const hasLink = /(https?:\/\/[^\s]+)/.test(message);
-            const hasDisallowedLink = /https?:\/\/(?!youtube\.com|chess\.com)[^\s]+/.test(message);
-
-            if (isBannedWordUsed || hasDisallowedLink) {
-                violationCount++;
-                if (violationCount >= 3) {
-                    permanentlyBanUser();
-                } else {
-                    temporarilyBanUser();
-                }
-                return;
+            try {
+                await addDoc(collection(db, "messages"), {
+                    text: message,
+                    timestamp: new Date()
+                });
+                messageInput.value = ""; // Clear input field after sending
+            } catch (error) {
+                console.error("Error sending message: ", error);
             }
-
-            const messageTime = new Date().toLocaleString();
-            const messageHTML = `<p><strong>Anonymous</strong> [${messageTime}]: ${message}</p>`;
-            chatBox.innerHTML += messageHTML;
-            saveMessageToHistory(messageHTML);
-
-            chatBox.scrollTop = chatBox.scrollHeight;
-            messageInput.value = "";
         }
 
-        function temporarilyBanUser() {
-            const banEndTime = new Date(new Date().getTime() + banDuration);
-            localStorage.setItem(bannedKey, banEndTime.getTime().toString());
-            chatInputDiv.style.display = "none";
-            bannedMessage.style.display = "block";
-            alert("You have been temporarily banned for 5 minutes due to rule violations.");
+        // Function to listen for new messages in real-time
+        function loadMessages() {
+            const q = query(collection(db, "messages"), orderBy("timestamp"));
+            onSnapshot(q, (snapshot) => {
+                chatBox.innerHTML = ""; // Clear chat box before reloading messages
+                snapshot.forEach((doc) => {
+                    const messageData = doc.data();
+                    const messageHTML = `<p><strong>Anonymous:</strong> ${messageData.text}</p>`;
+                    chatBox.innerHTML += messageHTML;
+                });
+                chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to latest message
+            });
         }
 
-        function permanentlyBanUser() {
-            localStorage.setItem(permanentBanKey, "true");
-            chatInputDiv.style.display = "none";
-            bannedMessage.style.display = "block";
-            bannedMessage.textContent = "You have been permanently banned from the chat due to repeated violations.";
-        }
-
-        // Load chat history and check for any active bans when the page loads
-        window.onload = () => {
-            loadChatHistory();
-            checkBan();
-        };
+        // Load messages when the page loads
+        loadMessages();
     </script>
 </body>
 </html>
